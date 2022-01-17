@@ -30,8 +30,12 @@ class AppDelegate: NSObject,NSApplicationDelegate{
     var isDimmed = false
     var lastBrightness = 0.0 as Float
     
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         let menuView = ContentView()
+            .environmentObject(GlobalVars.shared)
+        
+        GlobalVars.shared.timeout = UserDefaults.standard.float(forKey: "timeout")
         popOver.behavior = .transient
         popOver.animates = false
         popOver.contentViewController = NSViewController()
@@ -89,7 +93,7 @@ class AppDelegate: NSObject,NSApplicationDelegate{
     }
     
     func compute(){
-        print(Date().ISO8601Format())
+        print(GlobalVars.shared.timeout)
         let mouseInOther = self.getScreenWithMouse() != self.screen2dim
         if (!self.isDimmed && mouseInOther){
             if (Int(Date().timeIntervalSince(self.lastDate)) > self.dimAfter){

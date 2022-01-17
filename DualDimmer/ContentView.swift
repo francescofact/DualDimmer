@@ -28,8 +28,14 @@ private struct RedButtonStyle: ButtonStyle {
     }
 }
 
+
+class GlobalVars: ObservableObject {
+    static var shared = GlobalVars()
+    @Published var timeout: Float = 3.0
+}
+
 struct ContentView: View {
-    @State private var speed = 50.0
+    @EnvironmentObject var globalVars: GlobalVars
     var body: some View {
         VStack(alignment: .leading) {
 
@@ -53,10 +59,13 @@ struct ContentView: View {
                         }.buttonStyle(RedButtonStyle()).padding(.leading, -30)
                     }
 
-                    Slider(
-                        value: $speed,
-                        in: 0...100
-                    )
+                    Slider(value: Binding(get: {
+                        GlobalVars.shared.timeout
+                   }, set: { (newVal) in
+                       GlobalVars.shared.timeout = newVal
+                       self.sliderChanged(value:newVal)
+                   }))
+                   .padding(.all)
 
                     Spacer()
 
@@ -64,6 +73,10 @@ struct ContentView: View {
                 }.frame(width: 400, height: 100)
 
             
+    }
+    
+    func sliderChanged(value: Float) {
+        UserDefaults.standard.set(value, forKey: "timeout")
     }
 }
 
