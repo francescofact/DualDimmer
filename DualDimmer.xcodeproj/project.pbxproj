@@ -11,6 +11,8 @@
 		13A6CEEE27905F80003DBED9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A6CEED27905F80003DBED9 /* ContentView.swift */; };
 		13A6CEF027905F81003DBED9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13A6CEEF27905F81003DBED9 /* Assets.xcassets */; };
 		13A6CEF327905F81003DBED9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13A6CEF227905F81003DBED9 /* Preview Assets.xcassets */; };
+		13C673162796D2F60079BD83 /* CGDirectDisplayID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C673152796D2F60079BD83 /* CGDirectDisplayID.swift */; };
+		13C6731827970CF50079BD83 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C6731727970CF50079BD83 /* Utils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +22,8 @@
 		13A6CEEF27905F81003DBED9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		13A6CEF227905F81003DBED9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		13A6CEF427905F81003DBED9 /* DualDimmer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DualDimmer.entitlements; sourceTree = "<group>"; };
+		13C673152796D2F60079BD83 /* CGDirectDisplayID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGDirectDisplayID.swift; sourceTree = "<group>"; };
+		13C6731727970CF50079BD83 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +40,7 @@
 		13A6CEDF27905F80003DBED9 = {
 			isa = PBXGroup;
 			children = (
+				13C6731727970CF50079BD83 /* Utils.swift */,
 				13A6CEEA27905F80003DBED9 /* DualDimmer */,
 				13A6CEE927905F80003DBED9 /* Products */,
 			);
@@ -52,6 +57,7 @@
 		13A6CEEA27905F80003DBED9 /* DualDimmer */ = {
 			isa = PBXGroup;
 			children = (
+				13C673142796D2D60079BD83 /* Extensions */,
 				13A6CEEB27905F80003DBED9 /* DualDimmerApp.swift */,
 				13A6CEED27905F80003DBED9 /* ContentView.swift */,
 				13A6CEEF27905F81003DBED9 /* Assets.xcassets */,
@@ -67,6 +73,14 @@
 				13A6CEF227905F81003DBED9 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		13C673142796D2D60079BD83 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				13C673152796D2F60079BD83 /* CGDirectDisplayID.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,6 +155,8 @@
 			files = (
 				13A6CEEE27905F80003DBED9 /* ContentView.swift in Sources */,
 				13A6CEEC27905F80003DBED9 /* DualDimmerApp.swift in Sources */,
+				13C673162796D2F60079BD83 /* CGDirectDisplayID.swift in Sources */,
+				13C6731827970CF50079BD83 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

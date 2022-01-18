@@ -23,10 +23,8 @@ class AppDelegate: NSObject,NSApplicationDelegate{
     var statusItem: NSStatusItem?
     var popOver = NSPopover()
     var currentTimer: Timer?
-    
-    var screen2dim = NSScreen.screens[1]
+    var screen2dim: NSScreen?
     var lastDate = Date()
-    var dimAfter = 3
     var isDimmed = false
     var lastBrightness = 0.0 as Float
     
@@ -35,7 +33,6 @@ class AppDelegate: NSObject,NSApplicationDelegate{
         let menuView = ContentView()
             .environmentObject(GlobalVars.shared)
         
-        GlobalVars.shared.timeout = UserDefaults.standard.float(forKey: "timeout")
         popOver.behavior = .transient
         popOver.animates = false
         popOver.contentViewController = NSViewController()
@@ -48,6 +45,14 @@ class AppDelegate: NSObject,NSApplicationDelegate{
             MenuButton.action = #selector(MenuButtonToggle)
         }
         
+        //Hide dock icon
+        let newPolicy: NSApplication.ActivationPolicy = .accessory
+        NSApplication.shared.setActivationPolicy(newPolicy)
+        
+        //loads preferences
+        GlobalVars.shared.timeout = UserDefaults.standard.float(forKey: "timeout")
+        GlobalVars.shared.screenID = UserDefaults.standard.object(forKey: "screenID") as? NSNumber
+        //Start main logic
         runFastTimer();
         
         
@@ -93,10 +98,18 @@ class AppDelegate: NSObject,NSApplicationDelegate{
     }
     
     func compute(){
-        print(GlobalVars.shared.timeout)
+        if (GlobalVars.shared.screenID == nil){
+            runSlowTimer()
+            return;
+        }
+        self.screen2dim = findScreenByDeviceID(id: GlobalVars.shared.screenID.unsafelyUnwrapped)
+        if (self.screen2dim == nil){
+            runSlowTimer()
+            return;
+        }
         let mouseInOther = self.getScreenWithMouse() != self.screen2dim
         if (!self.isDimmed && mouseInOther){
-            if (Int(Date().timeIntervalSince(self.lastDate)) > self.dimAfter){
+            if (Float(Date().timeIntervalSince(self.lastDate)) > GlobalVars.shared.timeout){
                 if (self.checkIfAppPrevents()){
                     runTimer(fast: false)
                 } else {
@@ -184,5 +197,6 @@ class AppDelegate: NSObject,NSApplicationDelegate{
         
         return false
     }
+    
 
 }
