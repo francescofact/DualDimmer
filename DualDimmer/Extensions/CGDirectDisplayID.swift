@@ -49,6 +49,7 @@ extension CGDirectDisplayID {
 }
 
 extension NSScreen {
+    
     func getDeviceName() -> String {
         if #available(OSX 10.15, *) {
             return self.localizedName

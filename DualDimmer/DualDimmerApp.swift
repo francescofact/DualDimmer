@@ -69,7 +69,6 @@ class AppDelegate: NSObject,NSApplicationDelegate{
     @objc
     func runTimer(){
         self.worker.runFastTimer()
-        print("hola")
     }
     
     

@@ -25,11 +25,12 @@ func getScreenWithMouse() -> NSScreen?{
     return screenWithMouse
 }
 
-func setBrightnessLevel(level: Float) {
-    let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IODisplayConnect"))
-    print(service)
-    IODisplaySetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, level)
-    IOObjectRelease(service)
+func setBrightnessLevel(level: Float, screen: NSScreen) {
+    //let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IODisplayConnect"))
+    let displayID = screen.deviceDescription[NSDeviceDescriptionKey(rawValue: "NSScreenNumber")] as? CGDirectDisplayID
+    let service = displayID?.getIOService()
+    IODisplaySetFloatParameter(service.unsafelyUnwrapped, 0, kIODisplayBrightnessKey as CFString, level)
+    IOObjectRelease(service.unsafelyUnwrapped)
 }
 
 func getDisplayBrightness() -> Float {

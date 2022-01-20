@@ -40,8 +40,6 @@ class Worker {
     }
     
     func runFastTimer(){
-        print("Fast timer initializer says hola")
-        //Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
         let timer = Timer(timeInterval: 0.5, repeats: true) { timer in
             self.currentTimer = timer
             self.compute()
@@ -52,9 +50,7 @@ class Worker {
     }
     
     func compute(){
-        print("hola computato")
         if (GlobalVars.shared.screenID == nil || !GlobalVars.shared.enabled){
-            print("screenID is null or app is disabled")
             runSlowTimer()
             return;
         }
@@ -75,7 +71,7 @@ class Worker {
                 } else {
                     self.lastDate = Date()
                     self.lastBrightness = getDisplayBrightness()
-                    setBrightnessLevel(level: 0.1)
+                    setBrightnessLevel(level: 0.1, screen: self.screen2dim.unsafelyUnwrapped)
                     self.isDimmed = true
                     
                     runTimer(fast: true)
@@ -84,7 +80,7 @@ class Worker {
         } else {
             self.lastDate = Date()
             if (self.isDimmed && !mouseInOther){
-                setBrightnessLevel(level: self.lastBrightness)
+                setBrightnessLevel(level: self.lastBrightness, screen: self.screen2dim.unsafelyUnwrapped)
                 self.isDimmed = false;
             }
         }
@@ -113,7 +109,6 @@ class Worker {
                         if (ownerPID == pid){
                             let parentScreen = getParentScreen(x: bounds["X"] as! Float, y: bounds["Y"] as! Float)
                             if (parentScreen == self.screen2dim){
-                                print(name + " is avoiding, isInDimmableScreen: YES")
                                 return true
                             }
                         }

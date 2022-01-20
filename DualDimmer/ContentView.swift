@@ -138,15 +138,13 @@ struct ContentView: View {
                         Text("Screen to Dim: ")
                         ComboBox()
                     }
-                    .padding([.leading, .trailing])
-            
-                    Spacer()
+                    .padding([.leading, .trailing, .bottom])
             
                     Text("Developed by Francesco Fattori")
                         .frame(maxWidth: .infinity, alignment: .center)
 
 
-                }.frame(width: 400, height: 150)
+                }.frame(width: 400, height: 160)
 
             
     }
