@@ -5,6 +5,7 @@
 //  Created by Francesco Fattori on 13/01/22.
 //
 
+import Foundation
 import SwiftUI
 import IOKit.pwr_mgt
 import Cocoa
@@ -22,11 +23,7 @@ struct DualDimmerApp: App {
 class AppDelegate: NSObject,NSApplicationDelegate{
     var statusItem: NSStatusItem?
     var popOver = NSPopover()
-    var currentTimer: Timer?
-    var screen2dim: NSScreen?
-    var lastDate = Date()
-    var isDimmed = false
-    var lastBrightness = 0.0 as Float
+    var worker = Worker()
     
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -51,11 +48,16 @@ class AppDelegate: NSObject,NSApplicationDelegate{
         
         //loads preferences
         GlobalVars.shared.timeout = UserDefaults.standard.float(forKey: "timeout")
-        GlobalVars.shared.screenID = UserDefaults.standard.object(forKey: "screenID") as? NSNumber
+        GlobalVars.shared.enabled = UserDefaults.standard.bool(forKey: "enabled")
+        GlobalVars.shared.screenID = UserDefaults.standard.object(forKey: "display") as? NSNumber
         //Start main logic
-        runFastTimer();
         
+        //performSelector(inBackground: #selector(runFastTimer), with: nil)
         
+        //let thread = Thread(target:self, selector:#selector(self.runTimer), object: nil)
+        //thread.start()
+        
+        worker.runFastTimer()
     }
     
     @objc func MenuButtonToggle(){
@@ -64,139 +66,15 @@ class AppDelegate: NSObject,NSApplicationDelegate{
         }
     }
     
-    func getScreenWithMouse() -> NSScreen?{
-        let mouseLocation = NSEvent.mouseLocation
-        let screens = NSScreen.screens
-        let screenWithMouse = (screens.first { NSMouseInRect(mouseLocation, $0.frame, false) })
-        
-        return screenWithMouse
+    @objc
+    func runTimer(){
+        self.worker.runFastTimer()
+        print("hola")
     }
     
-    func runTimer(fast: Bool){
-        if (currentTimer != nil){
-            self.currentTimer.unsafelyUnwrapped.invalidate()
-        }
-        if (fast){
-            runFastTimer()
-        } else {
-            runSlowTimer()
-        }
-    }
     
-    func runSlowTimer(){
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-            self.currentTimer = timer
-            self.compute();
-        }
-    }
     
-    func runFastTimer(){
-        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
-            self.currentTimer = timer
-            self.compute()
-        }
-    }
     
-    func compute(){
-        if (GlobalVars.shared.screenID == nil){
-            runSlowTimer()
-            return;
-        }
-        self.screen2dim = findScreenByDeviceID(id: GlobalVars.shared.screenID.unsafelyUnwrapped)
-        if (self.screen2dim == nil){
-            runSlowTimer()
-            return;
-        }
-        let mouseInOther = self.getScreenWithMouse() != self.screen2dim
-        if (!self.isDimmed && mouseInOther){
-            if (Float(Date().timeIntervalSince(self.lastDate)) > GlobalVars.shared.timeout){
-                if (self.checkIfAppPrevents()){
-                    runTimer(fast: false)
-                } else {
-                    self.lastBrightness = self.getDisplayBrightness()
-                    self.setBrightnessLevel(level: 0.1)
-                    self.isDimmed = true
-                    
-                    runTimer(fast: true)
-                }
-            }
-        } else {
-            self.lastDate = Date()
-            if (self.isDimmed && !mouseInOther){
-                self.setBrightnessLevel(level: self.lastBrightness)
-                self.isDimmed = false;
-            }
-        }
-    }
-    
-    func setBrightnessLevel(level: Float) {
-
-        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IODisplayConnect"))
-        IODisplaySetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, level)
-        IOObjectRelease(service)
-    }
-    
-    func getDisplayBrightness() -> Float {
-
-        var brightness: Float = 1.0
-        var service: io_object_t = 1
-        var iterator: io_iterator_t = 0
-        let result: kern_return_t = IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IODisplayConnect"), &iterator)
-
-        if result == kIOReturnSuccess {
-
-            while service != 0 {
-                service = IOIteratorNext(iterator)
-                IODisplayGetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, &brightness)
-                IOObjectRelease(service)
-            }
-        }
-        return brightness
-    }
-    
-    func getParentScreen(x: Float,y: Float) -> NSScreen{
-        let screens = NSScreen.screens
-        for screen in screens{
-            let frame = screen.frame
-            if (Float(frame.minX) <= x && Float(frame.maxX) >= x){
-                return screen;
-            }
-        }
-        fatalError("App is in misterious screen")
-    }
-    
-    func checkIfAppPrevents() -> Bool{
-        let windowList: CFArray? = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID)
-        var assertions: Unmanaged<CFDictionary>?
-        if IOPMCopyAssertionsByProcess(&assertions) != kIOReturnSuccess {
-            fatalError("Error with assertions")
-        }
-        
-        let assertions2 = assertions?.takeRetainedValue()
-        for ass in assertions2.unsafelyUnwrapped as NSDictionary{
-            let myval = (ass.value as? NSArray).unsafelyUnwrapped
-            for single in myval as! [NSDictionary]{
-                if (single["AssertionTrueType"] as! String == "PreventUserIdleDisplaySleep"){
-                    let pid = single["AssertPID"] as! Int
-                    for entry in windowList! as Array {
-                        let bounds: NSDictionary = entry.object(forKey: kCGWindowBounds) as! NSDictionary
-
-                        let name: String = entry.object(forKey: kCGWindowOwnerName) as? String ?? "N/A"
-                        let ownerPID: Int = entry.object(forKey: kCGWindowOwnerPID) as? Int ?? 0
-                        if (ownerPID == pid){
-                            let parentScreen = self.getParentScreen(x: bounds["X"] as! Float, y: bounds["Y"] as! Float)
-                            if (parentScreen == self.screen2dim){
-                                print(name + " is avoiding, isInDimmableScreen: YES")
-                                return true
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        return false
-    }
     
 
 }

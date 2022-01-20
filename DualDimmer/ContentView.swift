@@ -34,23 +34,20 @@ struct ComboBox: NSViewRepresentable {
     
     func makeNSView(context: NSViewRepresentableContext<ComboBox>) -> NSPopUpButton {
         let combobox = NSPopUpButton(title:"Screen to Dim", target: context.coordinator, action: #selector(context.coordinator.action))
-        let monitors = NSScreen.screens.map{$0.getDeviceName() + " [" + $0.getScreenNumber().stringValue + "]"}
-        combobox.addItems(withTitles: monitors)
-        if let screenid = UserDefaults.standard.object(forKey: "display") {
-            var screen = findScreenByDeviceID(id: screenid as! NSNumber)
-            if screen != nil {
-                screen = screen.unsafelyUnwrapped
-                combobox.selectItem(withTitle: screen!.getDeviceName() + " [" + screen!.getScreenNumber().stringValue + "]")
-                print("Selecting previous choice")
-            }
-        }
+        loadItems(combobox: combobox)
         
         NotificationCenter.default.addObserver(forName: Notification.Name("PopUpButtonSelectedItemChanged"), object: nil, queue: nil) { _ in
             guard let selected = combobox.selectedItem?.title else { return }
-            let id = selected.components(separatedBy: "[")
-            let screenid = Int(id[id.count-1].dropLast()) as NSNumber?
-            GlobalVars.shared.screenID = screenid
-            UserDefaults.standard.set(screenid, forKey: "display")
+            if (selected == "↻ Reload List"){
+                loadItems(combobox: combobox)
+            } else {
+                print("setting " + selected + " as prefered")
+                let id = selected.components(separatedBy: "[")
+                let screenid = Int(id[id.count-1].dropLast()) as NSNumber?
+                GlobalVars.shared.screenID = screenid
+                UserDefaults.standard.set(screenid, forKey: "display")
+                print(GlobalVars.shared.screenID)
+            }
         }
         
         return combobox
@@ -67,6 +64,21 @@ struct ComboBox: NSViewRepresentable {
     class Coordinator {
         @objc func action() {
             NotificationCenter.default.post(name: Notification.Name("PopUpButtonSelectedItemChanged"), object: nil)
+        }
+    }
+    
+    func loadItems(combobox: NSPopUpButton){
+        combobox.removeAllItems()
+        
+        let monitors = NSScreen.screens.map{$0.getDeviceName() + " [" + $0.getScreenNumber().stringValue + "]"}
+        combobox.addItems(withTitles: monitors)
+        combobox.addItem(withTitle: "↻ Reload List")
+        if let screenid = UserDefaults.standard.object(forKey: "display") {
+            var screen = findScreenByDeviceID(id: screenid as! NSNumber)
+            if screen != nil {
+                screen = screen.unsafelyUnwrapped
+                combobox.selectItem(withTitle: screen!.getDeviceName() + " [" + screen!.getScreenNumber().stringValue + "]")
+            }
         }
     }
 }
@@ -94,6 +106,7 @@ struct ContentView: View {
 
                         Button(action: {
                             GlobalVars.shared.enabled = !GlobalVars.shared.enabled
+                            UserDefaults.standard.set(GlobalVars.shared.enabled, forKey: "enabled")
                         }) {
                             Text( GlobalVars.shared.enabled ? "Enabled" : "Disabled")
                                 .frame(maxWidth: 70, maxHeight: 30)
@@ -124,11 +137,6 @@ struct ContentView: View {
                     HStack {
                         Text("Screen to Dim: ")
                         ComboBox()
-                        Button(action: {
-                            
-                        }) {
-                            Image(systemName: "arrow.counterclockwise")
-                        }
                     }
                     .padding([.leading, .trailing])
             
