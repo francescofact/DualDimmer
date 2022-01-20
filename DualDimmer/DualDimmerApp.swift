@@ -38,7 +38,7 @@ class AppDelegate: NSObject,NSApplicationDelegate{
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let MenuButton = statusItem?.button{
-            MenuButton.image = NSImage(named: NSImage.Name("menubar"))//NSImage(systemSymbolName: "icloud.and.arrow.up.fill", accessibilityDescription: nil)
+            MenuButton.image = NSImage(named: "menubar")
             MenuButton.action = #selector(MenuButtonToggle)
         }
         
