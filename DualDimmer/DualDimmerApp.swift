@@ -50,12 +50,6 @@ class AppDelegate: NSObject,NSApplicationDelegate{
         GlobalVars.shared.timeout = UserDefaults.standard.float(forKey: "timeout")
         GlobalVars.shared.enabled = UserDefaults.standard.bool(forKey: "enabled")
         GlobalVars.shared.screenID = UserDefaults.standard.object(forKey: "display") as? NSNumber
-        //Start main logic
-        
-        //performSelector(inBackground: #selector(runFastTimer), with: nil)
-        
-        //let thread = Thread(target:self, selector:#selector(self.runTimer), object: nil)
-        //thread.start()
         
         worker.runFastTimer()
     }

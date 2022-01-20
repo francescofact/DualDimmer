@@ -43,7 +43,6 @@ func getDisplayBrightness() -> Float {
     if result == kIOReturnSuccess {
 
         while service != 0 {
-            print(service)
             service = IOIteratorNext(iterator)
             IODisplayGetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, &brightness)
             IOObjectRelease(service)
